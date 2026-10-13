@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-13",
+  "n_last30": 235,
+  "n_prev30": 223,
+  "score": 4.6386456,
+  "ratings": 114886,
+  "avg_last30": 3.75,
+  "avg_prev30": 3.87,
+  "one_star_share_last30": 27.7,
+  "one_star_share_prev30": 25.1,
+  "one_star_by_version": [
+    [
+      "12.19.0",
+      33
+    ],
+    [
+      "12.18.1",
+      20
+    ],
+    [
+      "unknown",
+      8
+    ]
+  ],
+  "themes_last30": [
+    [
+      "Other",
+      37
+    ],
+    [
+      "Booking / scheduling",
+      14
+    ],
+    [
+      "Tracking / GPS / ETA",
+      10
+    ]
+  ],
+  "themes_prev30": {
+    "OTP / login": 5,
+    "Other": 27,
+    "Booking / scheduling": 12,
+    "Support / ops": 9,
+    "Notifications": 1,
+    "Tracking / GPS / ETA": 8,
+    "Update / redesign": 4,
+    "No-show / cancel penalty": 4,
+    "Crash / performance": 7
+  },
+  "reply_rate": 1.4,
+  "median_reply_hours": null,
+  "reply_time_anomalies": 1,
+  "crashfree": null
+}

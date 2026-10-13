@@ -4,7 +4,7 @@
 
 MoveInSync should treat Play Store rating improvement as a commute-trust recovery program, not a cosmetic app-store problem. The fastest rating lift will come from fixing the moments where an employee feels stranded or wrongly blamed: booking confirmation, live tracking freshness, check-in/no-show, OTP/seatbelt verification, app/session reliability, and visible support closure.
 
-The public rating is already decent at first glance: Google Play shows 4.3 stars with roughly 114K reviews and 1M+ downloads, while AppBrain lists 4.32 with about 114.6K ratings and 3.2M installs as of 2026-10-10. The issue is that MoveInSync is a daily commute utility used under time pressure. A 4.3 for a casual app may be good. A 4.3 for a mandatory office commute product means too many people still hit one bad morning or evening and then speak publicly.
+The public rating is already decent at first glance, but the rating source itself needs care. The Google Play web page I could open showed 4.3 stars with roughly 114K reviews and 1M+ downloads. AppBrain showed 4.32 with about 114.6K ratings and 3.2M installs as of 2026-10-10. A run of the included `play_pulse.py` script on 2026-10-13 returned a fresher Play score of 4.6386456 from 114,886 ratings. I would not argue with the panel about which public surface is "right"; I would state the source and timestamp, then ask the team to validate against Play Console. The product issue remains the same: MoveInSync is a mandatory commute utility, so even a decent average rating can hide painful high-stress failures.
 
 ## What I think is really happening
 
@@ -25,7 +25,7 @@ My diagnosis: the rating is not mainly pulled down by people disliking MoveInSyn
 
 ## Rating math and why the approach matters
 
-A rating of about 4.32 across roughly 114.6K ratings is hard to move with review prompts alone. To reach 4.50 using only new 5-star ratings, MoveInSync would need approximately 41K additional perfect ratings, assuming the existing base is unchanged:
+A rating of about 4.32 across roughly 114.6K ratings is hard to move with review prompts alone. If AppBrain's 4.32 baseline is used, reaching 4.50 using only new 5-star ratings would need approximately 41K additional perfect ratings, assuming the existing base is unchanged:
 
 `(4.50 - 4.32) * 114,607 / (5.00 - 4.50) = ~41,258`
 
@@ -37,6 +37,14 @@ That is why the right strategy is not "ask more happy users to rate us." It is:
 - Build a weekly ratings system so the same question can be answered repeatedly.
 
 Google itself says responding to negative reviews can increase that user's rating by an average of +0.7, and Play Console supports review themes, exports, notifications, and replies. Google Play's In-App Review API should be triggered only after the user has experienced enough value and should not be overused or pre-filtered with questions like "Do you like the app?"
+
+## What I ran
+
+I added a small working script, `play_pulse.py`, so this is not only a recommendation document. It uses `google-play-scraper` to pull recent public reviews, classify 1-star and 2-star themes, surface app-version spikes, and save a dated JSON snapshot.
+
+Run on 2026-10-13 for `com.moveinsync.ets`, it read 235 written reviews from the last 30 days and 223 from the prior 30 days. The last-30-day written-review average was 3.75 stars, down 0.1 versus the prior 30 days. The 1-star share was 27.7%, up 2.6 points. The top 1-star versions were 12.19.0 with 33 reviews, 12.18.1 with 20 reviews, and unknown with 8 reviews. Among 1-star and 2-star reviews, the top public keyword themes were Other, Booking / scheduling, and Tracking / GPS / ETA.
+
+I would treat this script as the seed of Ratings Room. The public feed has limitations: it is not Play Console, it can miss private review metadata, and public reply timestamps can be inconsistent. In the run above, one impossible negative reply-time duration was ignored by the script and flagged as a timestamp anomaly.
 
 ## What to fix first
 
@@ -75,6 +83,8 @@ Engineering work:
 ### Priority 2: Check-in/no-show recovery
 
 The June 2026 review asking for a check-in reminder after the vehicle crosses the pickup point is important because it is small, concrete, and high-trust. I would ship this early.
+
+There is also a sharper FDE angle here. MoveInSync's public Driver App 6.4.0 help-center article describes enhanced no-show controls, including geofence and timer settings. In the article's sample configuration, `ENABLE_NO_SHOW_BUTTON_BASED_ON_GEO_FENCE` is `false` and `ENHANCED_NO_SHOW_GEOFENCE` is blank. Before building a new feature, I would run a per-client configuration audit: which customers have enhanced no-show enabled, which have geofence enforcement off, what radius is configured, what timer is configured, and whether no-show emails include driver geo-coordinates. That is the kind of operational/product gap an FDE can close quickly.
 
 Build a no-show prevention flow:
 
@@ -165,6 +175,7 @@ Every week:
 
 - Ship trip status card behind feature flag for pilot customers.
 - Ship OTP recoverability and no-show reminder pilot.
+- Run the no-show configuration audit for the top 20 customers by review/support volume.
 - Add tracking freshness telemetry and stale-location UI.
 - Start review-to-ticket routing for severe issues.
 - Build a weekly customer transport-desk report: "your employees' top commute app complaints and what changed."
@@ -176,6 +187,7 @@ Every week:
 - Add route/customer/vendor cuts to live tracking dashboard.
 - Start updated-rating tracking: users who increased rating after reply or fix.
 - Run one controlled experiment for booking flow simplification.
+- Add release guardrails: staged rollout, review spike monitor by version, and a halt rule if the 1-star share rises more than 3 percentage points or crash/session issues spike during rollout.
 
 ### Days 61-90
 
@@ -253,6 +265,7 @@ For booking confusion:
 - MoveInSync AppBrain: https://www.appbrain.com/app/moveinsync/com.moveinsync.ets
 - MoveInSync Chrome-Stats reviews: https://chrome-stats.com/d/com.moveinsync.ets/reviews
 - MoveInSync Apple App Store: https://apps.apple.com/us/app/moveinsync/id962949521
+- MoveInSync Driver App 6.4.0 help-center article: https://helpcenter.moveinsync.com/support/solutions/articles/1070000137681-new-feature-driver-app-6-4-0
 - Routematic Google Play: https://play.google.com/store/apps/details?id=com.routematic.employee
 - eFmFm Google Play: https://play.google.com/store/apps/details?id=com.app.newt.employee
 - Google Play In-App Reviews API: https://developer.android.com/guide/playcore/in-app-review
